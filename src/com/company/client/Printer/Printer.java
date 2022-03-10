@@ -10,6 +10,7 @@ public class Printer {
     private List<String> state = new ArrayList<>();
     private final int maxEnters = 15;
     private int freeIndex = 0;
+    private boolean serverState = false;
     
 
     public Printer(Scanner scanner){
@@ -31,8 +32,7 @@ public class Printer {
     }
 
     public synchronized void printNewMsg(String msg){
-        System.out.println("[Printer] dostalem wiadomosc: "+msg);
-        System.out.print("\n");
+        System.out.println();
         if(freeIndex<maxEnters-1){
             state.set(freeIndex, msg+"\n");
             freeIndex++;
@@ -47,10 +47,17 @@ public class Printer {
         System.out.print(s);
     }
 
+    public void setServer(boolean state){
+        this.serverState = state;
+        if(this.state.size() >= maxEnters){
+            this.state.set(maxEnters, "==================================" + (serverState?" Connected":" Not connected") + "\n");
+        }
+    }
+
     public void startChat(){
         for(int i=0;i<maxEnters;i++)
             state.add("\n");
-        state.add("==================================\n");
+        state.add("==================================" + (serverState?" Connected":" Not connected") + "\n");
         state.add("You: ");
         drawState();
     }

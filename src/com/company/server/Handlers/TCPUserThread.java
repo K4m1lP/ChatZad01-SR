@@ -31,17 +31,19 @@ public class TCPUserThread extends Thread{
 
     private void getNick() throws IOException {
         while (nick==null){
-
             String msg = in.readLine();
-            if(broadcastManager.isNickInUse(msg)){
-                out.println("NOT_ACK");
+            if(msg!=null) {
+                if (broadcastManager.isNickInUse(msg)) {
+                    out.println("NOT_ACK");
+                } else {
+                    out.println("ACK");
+                    broadcastManager.addClient(msg, out, ip);
+                    nick = msg;
+                    broadcastManager.TCPBroadcast(nick, "just joined.");
+                }
             } else {
-                out.println("ACK");
-                broadcastManager.addClient(msg, out, ip);
-                nick = msg;
-                broadcastManager.TCPBroadcast(nick, "just joined.");
+                out.println("NOT_ACK");
             }
-
         }
     }
 
