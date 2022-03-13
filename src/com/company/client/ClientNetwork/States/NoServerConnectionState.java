@@ -16,8 +16,8 @@ public class NoServerConnectionState implements State {
     private Client context;
     private final NoServerNetwork network;
     private final Printer printer;
-    private String ip;
-    private String nick;
+    private final String ip;
+    private final String nick;
 
     public NoServerConnectionState(String ip, NoServerNetwork network, Printer printer){
         if(Debug.debug)
@@ -25,11 +25,9 @@ public class NoServerConnectionState implements State {
         this.printer = printer;
         this.network = network;
         this.ip = ip;
-
         Scanner scan = new Scanner(System.in);
         printer.print("Your Nick: ");
         nick = scan.nextLine();
-
         this.network.setNick(nick);
         this.printer.startChat();
     }
@@ -38,8 +36,9 @@ public class NoServerConnectionState implements State {
     public boolean proceed() {
         String specialMulti = "-M";
         String userInput = printer.getLine();
-        if(userInput.equals("EXIT"))
-            return false;
+        if(userInput.equals("EXIT")){
+            context.changeState(new EndState(network, printer, null));
+        }
         if(userInput.contains(specialMulti)) {
             try {
                 network.sendMulticast(userInput);
@@ -50,7 +49,6 @@ public class NoServerConnectionState implements State {
             printer.setServer(true);
             context.changeState(new ServerConnectionState(network, serverNetwork, printer, nick));
         } catch (NO_SERVER_CONNECTION | NO_RECEIVE_ERROR ignored) {}
-
         return true;
     }
 

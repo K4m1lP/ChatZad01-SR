@@ -53,7 +53,6 @@ public class ServerConnectionState implements State {
         serverNetwork.startListening();
         serverNetwork.setNick(this.nick);
         noServerNetwork.setNick(this.nick);
-
         printer.startChat();
     }
 
@@ -64,8 +63,9 @@ public class ServerConnectionState implements State {
         String specialUdp = "-U";
 
         String userInput = printer.getLine();
-        if(userInput.equals("EXIT"))
-            return false;
+        if(userInput.equals("EXIT")){
+            context.changeState(new EndState(noServerNetwork, printer, serverNetwork));
+        }
         if(userInput.contains(specialMulti)) {
             try {
                 noServerNetwork.sendMulticast(userInput);

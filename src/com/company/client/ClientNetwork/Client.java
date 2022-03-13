@@ -22,6 +22,8 @@ public class Client {
         while (clientWorking){
             clientWorking = currentState.proceed();
         }
+        if(Debug.debug)
+            System.out.println("End of client");
     }
 
     public void changeState(State state){

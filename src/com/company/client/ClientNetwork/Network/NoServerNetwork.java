@@ -51,6 +51,11 @@ public class NoServerNetwork {
 
     public void close(){
         multicastListener.stopMe();
+        try {
+            multicastListener.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         nick = null;
     }
 

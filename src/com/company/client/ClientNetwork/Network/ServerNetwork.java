@@ -12,7 +12,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.charset.Charset;
@@ -25,9 +24,9 @@ public class ServerNetwork {
     private final PrintWriter out;
     private final BufferedReader in;
     private final TCPListenThread listenThread;
-    private DatagramChannel ds = null;
+    private final DatagramChannel ds;
     private String nick;
-    private UDPListenThread listenThreadUDP = null;
+    private final UDPListenThread listenThreadUDP;
     private final String serverIp = "127.0.0.1";
     private final Charset coding = StandardCharsets.UTF_8;
 
@@ -68,14 +67,12 @@ public class ServerNetwork {
     public void sendUDP(String msg) throws IOException {
         msg = "B:"+nick+"#"+msg;
         ByteBuffer buffer = ByteBuffer.wrap(msg.getBytes(coding));
-        InetSocketAddress serverAdress = new InetSocketAddress(serverIp, portNumber);
-        ds.send(buffer, serverAdress);
+        InetSocketAddress serverAddress = new InetSocketAddress(serverIp, portNumber);
+        ds.send(buffer, serverAddress);
         buffer.clear();
     }
 
     public void close(){
-        if(out!=null)
-            //sendTCP("EXIT");
         try {
             if(socket!=null)
                 socket.close();
@@ -83,14 +80,24 @@ public class ServerNetwork {
                 out.close();
             if(in!=null)
                 in.close();
-            if(listenThread!=null)
-                listenThread.stopMe();
             if(ds!=null)
                 ds.close();
             nick = null;
-            if(listenThreadUDP!=null)
+            if(listenThread!=null){
+                listenThread.stopMe();
+                assert socket != null;
+                socket.close();
+                listenThread.join();
+            }
+            if(listenThreadUDP!=null){
                 listenThreadUDP.stopMe();
-        } catch (IOException ignored) {}
+                assert ds != null;
+                ds.close();
+                listenThreadUDP.join();
+            }
+        } catch (IOException ignored) {} catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public void setNick(String nick) {

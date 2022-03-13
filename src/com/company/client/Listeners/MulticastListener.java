@@ -38,13 +38,12 @@ public class MulticastListener extends Thread{
             }
             socket.leaveGroup(group);
             socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException ignored) {}
     }
 
     public void stopMe(){
         this.working = false;
+        this.socket.close();
     }
 
     public void setNick(String nick){

@@ -55,6 +55,11 @@ public class Printer {
     }
 
     public void startChat(){
+        if(state.size()>0) {
+            drawState();
+            return;
+        }
+
         for(int i=0;i<maxEnters;i++)
             state.add("\n");
         state.add("==================================" + (serverState?" Connected":" Not connected") + "\n");
